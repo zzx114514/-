@@ -1,0 +1,152 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+
+
+
+#define MaxVexNum 50
+#define MaxInt 32767
+#define MaxEdgeNum 50
+//邻接矩阵
+typedef int VertexType;
+typedef int EdgeType;
+typedef struct AMGraph {
+	VertexType vexs[MaxVexNum];//顶点表 
+	EdgeType arcs[MaxVexNum][MaxVexNum];//邻接矩阵表 
+	int vexnum, edgenum;//顶点数，边数 
+}AMGraph;
+
+void createGraph(AMGraph& g) {//创建无向图 
+	printf("请输入顶点数：");
+	scanf("%d", &g.vexnum);
+	printf("\n请输入边数：");
+	scanf("%d", &g.edgenum);
+
+	//初始化顶点表 
+	for (int i = 0; i < g.vexnum; i++) {
+		g.vexs[i] = i;
+	}
+	for (int i = 0; i < g.vexnum; i++) {
+		for (int j = 0; j < g.vexnum; j++) {
+			g.arcs[i][j] = MaxInt;
+			if (i == j) g.arcs[i][j] = 0;
+		}
+	}
+	printf("请输入边的信息以及边的权值(顶点是0~n-1)\n");
+	for (int i = 0; i < g.edgenum; i++) {
+		int x, y, w;
+		scanf("%d%d%d", &x, &y, &w);
+		g.arcs[x][y] = w;
+		g.arcs[y][x] = w;
+	}
+}
+void PrintGraph(AMGraph g) {
+	printf("邻接矩阵为:\n");
+	for (int i = 0; i < g.vexnum; i++) {
+		printf("  %d", g.vexs[i]);
+	}
+	printf("\n");
+	for (int i = 0; i < g.vexnum; i++) {
+		printf("%d ", g.vexs[i]);
+		for (int j = 0; j < g.vexnum; j++) {
+			if (g.arcs[i][j] == 32767) {
+				printf("∞ ");
+			}
+			else {
+				printf("%d  ", g.arcs[i][j]);
+			}
+		}
+		printf("\n");
+	}
+}
+
+
+
+//普利姆算法
+struct Node    //需要用一个结构体来记录产生的最小的生成树 
+{
+	int adjvex;//最小边在U的那个顶点     
+	int lowcost;//最小边上的权值    
+}MinTree[MaxVexNum];
+
+void Prim(AMGraph g, int k) {
+	//初始化closedge
+	printf("最小路径：\n");
+	int n = g.vexnum;
+	int i;
+	for (i = 0; i < n; i++) {
+		if (i != k) {//i!=k是因为结点本身和结点本身不能产生关系 
+			MinTree[i].adjvex = k;
+			MinTree[i].lowcost = g.arcs[i][k];
+		}
+	}
+	MinTree[k].lowcost = 0;//初始，U={u};
+	int min, u0, v0, sum = 0;
+	for (int i = 0; i < n - 1; i++) {//n-1是因为已经有一个顶点已经遍历了
+		min = MaxInt;
+		for (int j = 0; j < n; j++) {
+			if (MinTree[j].lowcost > 0) {
+				if (MinTree[j].lowcost < min) {
+					k = j;
+					min = MinTree[j].lowcost;
+					sum += min;
+				}
+			}
+		}
+		u0 = MinTree[k].adjvex;
+		v0 = MinTree[k].lowcost;
+		printf("[%d,%d]\n", u0, v0);
+		MinTree[k].lowcost = 0;
+		for (int j = 0; j < n; j++) {
+			if (g.arcs[k][j] < MinTree[j].lowcost) {
+				MinTree[j].lowcost = g.arcs[k][j];
+				MinTree[j].adjvex = g.vexs[k];
+			}
+		}
+
+	}
+	printf("最小路径长度为：%d\n", sum);
+}
+
+//Kruskal算法
+
+//寻找根节点的函数 
+int GetRoot(int v[], int p) {
+	while (p != v[p]) {//依据根节点的数组下标和 里面的值相同来找到根节点 
+		p = v[p];//若两个元素的根节点相同则属于同一颗树 
+	}
+}
+void Kruskal(AMGraph g) {
+	int v[g.vexnum];//需要用到并查集，看是否选出的边的两个顶点是否已经归并，避免形成回路
+	for (int i = 0; i < g.vexnum; i++) v[i] = i;//初始化并查集 
+	int sum = 0;
+
+	for (int q = 0; q < g.vexnum - 1; q++) {//连通一个图需要n-1条边，(n为顶点数) 
+		int x, y;
+		int  min = MaxInt;
+		for (int i = 0; i < g.vexnum; i++) {
+			for (int j = 0; j < g.vexnum; j++) {
+				if (g.arcs[i][j] < min && g.arcs[i][j]>0 && GetRoot(v, i) != GetRoot(v, j)) {//选出的边不能形成回路 
+					min = g.arcs[i][j];
+					x = i;
+					y = j;
+
+				}
+			}
+		}
+		printf("[%d %d]\n", x, y);
+		sum += min;
+		g.arcs[x][y] = 0;//将这条边置零，以便选出次小边 
+		g.arcs[y][x] = 0;//无向图 
+		v[y] = x;//将两个结点挂在一棵树上
+	}
+	printf("\n最短路径长度为：%d\n", sum);
+}
+
+int main() {
+	AMGraph g;
+	createGraph(g);
+	//PrintGraph(g);
+	Prim(g, 0);
+	Kruskal(g);
+}
