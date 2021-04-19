@@ -1,0 +1,105 @@
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+using namespace std;
+#define MAX 1000
+int compfun(const void* a, const void* b);
+int Select(int* a, int len, int k);
+
+
+
+int main()
+{
+	int k;
+	int a[] = { 87,83,50,51,11,26,76,12,79,66 };
+	cout << "k=";
+	cin >> k;
+	cout << Select(a, sizeof(a) / sizeof(int), k) << endl;
+}
+
+int compfun(const void* a, const void* b)
+{
+	int* A = (int*)a;
+	int* B = (int*)b;
+	return *A - *B;
+}
+int Select(int* a, int Length, int k)
+{
+	int n = Length / 5;
+	int M[MAX], Nub = 0;
+	int S1[MAX], S2[MAX];
+	int Nub1 = 0, Nub2 = 0;
+
+	if (Length <= 5)
+	{
+		qsort(a, Length, sizeof(int), compfun);
+		return a[k - 1];
+	}
+	for (int i = 0; i < n; i++)
+	{
+
+		qsort(a + 5 * i, 5, sizeof(int), compfun);
+		M[Nub++] = a[5 * i + 2];
+	}
+
+	int M2 = Select(M, Nub, Nub / 2 + 1);
+
+	for (int i = 0; i < n; i++)
+	{
+		if (a[5 * i + 2] < M2)
+		{
+			S1[Nub1++] = a[5 * i];
+			S1[Nub1++] = a[5 * i + 1];
+			S1[Nub1++] = a[5 * i + 2];
+
+			if (a[5 * i + 3] < M2)
+				S1[Nub1++] = a[5 * i + 3];
+			else
+				S2[Nub2++] = a[5 * i + 3];
+
+			if (a[5 * i + 4] < M2)
+				S1[Nub1++] = a[5 * i + 4];
+			else
+				S2[Nub2++] = a[5 * i + 4];
+		}
+		else if (a[5 * i + 2] == M2)
+		{
+			S1[Nub1++] = a[5 * i];
+			S1[Nub1++] = a[5 * i + 1];
+			S2[Nub2++] = a[5 * i + 3];
+			S2[Nub2++] = a[5 * i + 4];
+		}
+		else
+		{
+			S2[Nub2++] = a[5 * i + 3];
+			S2[Nub2++] = a[5 * i + 4];
+			S2[Nub2++] = a[5 * i + 2];
+
+			if (a[5 * i] < M2)
+				S1[Nub1++] = a[5 * i];
+			else
+				S2[Nub2++] = a[5 * i];
+
+			if (a[5 * i + 1] < M2)
+				S1[Nub1++] = a[5 * i + 1];
+			else
+				S2[Nub2++] = a[5 * i + 1];
+		}
+	}
+
+	for (int i = 5 * n; i < Length; i++)
+	{
+		if (a[i] < M2)
+			S1[Nub1++] = a[i];
+		else
+			S2[Nub2++] = a[i];
+	}
+
+	if (k == Nub1 + 1)
+		return M2;
+	else if (k <= Nub1)
+		return Select(S1, Nub1, k);
+	else
+		return Select(S2, Nub2, k - Nub1 - 1);
+}
