@@ -1,0 +1,33 @@
+#include<stdio.h>
+int main() {
+
+	int i,j,k,m = 5, n = 4;//m万元钱，n项投资
+	int Money_i, Money_loop = 0;//给第i个项目投入的钱数  一次循环中的钱数
+	int f[5][6] = { 
+		{0,0,0,0,0,0},
+		{0,11,12,13,14,15},
+		{0,0,5,10,15,20},
+		{0,2,10,30,32,40},
+		{0,20,21,22,23,24} 
+	};
+	int Loop[5][6];
+
+
+	
+	for (j = 0; j <= m; ++j) {
+		Loop[0][j] = f[0][j];//第一个项目上投入0-m元钱的最大收益等于f[0][0-m]
+	}
+	for (i = 1; i <= n; ++i) {//第一个项目已经赋值，所以从2开始
+		for (j = 1; j <= m; ++j) {
+			for (Money_i = 0; Money_i <= j; ++Money_i) {//钱数循环 从0开始
+				Money_loop = Loop[i - 1][j - Money_i] + f[i][Money_i];
+				if (Money_loop > Loop[i][j]) {
+					Loop[i][j] = Money_loop;
+				}
+			}
+		}
+	}
+
+
+	printf("最大收益为 :%d万\n", Loop[n][m]);
+}
