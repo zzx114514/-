@@ -1,0 +1,48 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include<cstdio>
+#define N 1000
+#define INF 1<<29
+
+int p[N], m[N][N], s[N][N];
+void Matrix_Chain_Order(int n) {
+    int i, j, k, l, e;
+    for (i = 1; i <= n; i++)
+        m[i][i] = 0;
+    for (l = 2; l <= n; l++) {
+        for (i = 1; i <= n - l + 1; i++) {
+            j = i + l - 1;
+            m[i][j] = INF;
+            for (k = i; k < j; k++) {
+                e = m[i][k] + m[k][j + 1] + p[i - 1] * p[k] * p[j - 1];
+                if (e < m[i][j]) {
+                    m[i][j] = e;
+                    s[i][j] = k;
+                }
+            }
+        }
+    }
+}
+void Print_Optimal_Parens(int i, int j) {
+    if (i == j)
+        printf("A%d", i);
+    else {
+        printf("(");
+        Print_Optimal_Parens(i, s[i][j]);
+        Print_Optimal_Parens(s[i][j] + 1, j);
+        printf(")");
+    }
+}
+int main()
+{
+    int n, i;
+    while (~scanf("%d", &n)) {
+        for (i = 1; i <= n; i++) {
+            scanf("%d%d", &p[i - 1], &p[i]);
+        }
+    
+        Matrix_Chain_Order(n);
+        Print_Optimal_Parens(1, n);
+    }
+    return 0;
+}
