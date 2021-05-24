@@ -1,0 +1,120 @@
+#pragma warning(disable:4996);//防止vs报错
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+#define N 3      //在这里修改数目
+#define M 2*N-1       
+typedef struct {
+    double weight;
+    int parent, lchild, rchild;
+}HTNode;
+typedef HTNode HFMT[M];
+typedef struct {
+    int id;
+    double weight;
+}temp;
+typedef struct {
+    char ch;
+    char bits[N + 1];
+}CodeNode;
+typedef CodeNode HFMCode[N];
+
+
+void InitHFMT(HFMT T);
+void Weight(HFMT T);
+bool Cmp(temp a, temp b);
+void Min(HFMT T, int k, int* p1, int* p2);
+void CreateHFMT(HFMT T);
+void CharSetHuffmanEncoding(HFMT T, HFMCode H);
+
+int main() {
+    HFMT T;
+    HFMCode H;
+    printf("输入%d个叶子结点的权值：\n", N);
+    CreateHFMT(T);
+    printf("输入%d个叶子结点所代表的字符：\n", N);
+    CharSetHuffmanEncoding(T, H);
+    printf("哈夫曼编码如下：\n");
+    double x = 0.0;
+    for (int i = 0; i < N; i++) {
+        printf("ch:%c  code:%s\n", H[i].ch, H[i].bits);
+        x += strlen(H[i].bits) * T[i].weight;
+    }
+    printf("平均码长：%.2lf\n", x);
+    return 0;
+
+}
+
+void InitHFMT(HFMT T) {
+
+    for (int i = 0; i < M; i++) {
+        T[i].parent = -1;
+        T[i].lchild = -1;
+        T[i].rchild = -1;
+        T[i].weight = 0;
+    }
+}
+void Weight(HFMT T) {
+
+
+    for (int i = 0; i < N; i++) {
+        double x;
+        scanf("%lf", &x);
+        T[i].weight = x;
+    }
+}
+bool Cmp(temp a, temp b) {
+    return a.weight < b.weight;
+}
+void Min(HFMT T, int k, int* p1, int* p2) {
+    temp a[M];
+    int i, j;
+    for (i = 0, j = 0; i <= k; i++) {  
+        if (T[i].parent == -1) {
+            a[j].id = i;
+            a[j].weight = T[i].weight;
+            j++;
+        }
+    }
+    sort(a, a + j, Cmp);
+
+    *p1 = a[0].id;
+    *p2 = a[1].id;
+}
+void CreateHFMT(HFMT T) {
+    int i, p1, p2;
+
+    InitHFMT(T);
+    Weight(T);
+    for (i = N; i < M; i++) {
+        Min(T, i - 1, &p1, &p2);
+        T[p1].parent = T[p2].parent = i;
+        T[i].lchild = p1;
+        T[i].rchild = p2;
+        T[i].weight = T[p1].weight + T[p2].weight;
+    }
+}
+void CharSetHuffmanEncoding(HFMT T, HFMCode H) {
+
+    int a, b;
+    char c[N + 1];
+    int s;
+    c[N] = '\0';
+    getchar();
+    for (int i = 0; i < N; i++) {
+        H[i].ch = getchar();
+        s = N;
+        a = i;
+        while ((b = T[a].parent) >= 0) {
+            if (T[b].lchild == a)
+                c[--s] = '0';
+            else
+                c[--s] = '1';
+            a = b;
+        }
+
+        strcpy(H[i].bits, &c[s]);
+    }
+}
