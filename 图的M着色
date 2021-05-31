@@ -1,0 +1,69 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstdio>
+using namespace std;
+
+int n, m;
+int a = 1, b = 1;
+int counts = 0;
+int graph[30][30] = { 0 };
+int color[30] = { 0 };
+
+bool Checkcolor(int c);
+
+void Backtrack(int cur);
+
+int main()
+{
+    printf("依次输入顶点数和颜色数：");
+    scanf("%d %d", &n, &m);
+    printf("输入格式a b，表示a和b相邻，输入同时为-1结束\n");
+    while (scanf("%d %d", &a, &b) != EOF && a != -1 && b != -1)
+    {
+        graph[a][b] = 1;
+        graph[b][a] = 1;
+    }
+    Backtrack(1);
+    if (counts > 0)
+        printf("总数=%d", counts);
+    else
+        printf("NO");
+    return 0;
+}
+
+bool Checkcolor(int c)
+{
+    for (int i = 1; i <= n; i++)
+    {
+        if (graph[c][i] && color[c] == color[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Backtrack(int c)
+{
+    if (c > n)
+    {
+        for (int i = 1; i <= n; i++)
+        {
+            printf("%d ", color[i]);
+        }
+        counts++;
+        printf("\n");
+    }
+    else
+    {
+        for (int i = 1; i <= m; i++)
+        {
+            color[c] = i;
+            if (Checkcolor(c))
+            {
+                Backtrack(c + 1);
+            }
+            color[c] = 0;
+        }
+    }
+}
