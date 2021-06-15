@@ -1,0 +1,41 @@
+#include <iostream>
+#include <string.h>
+#include <vector>
+
+using namespace std;
+int Min(int a, int b) {
+	if (a > b)
+		return b;
+	else
+		return a;
+}
+int main() {
+	char str1[2001], str2[2001];
+	int Length1, Length2, temp;
+	cin >> str1;
+	cin >> str2;
+	Length2 = strlen(str1);
+	Length1 = strlen(str2);
+		vector<vector<int> > Distance(Length2 + 1, vector<int>(Length1 + 1, 0));
+		for (int i = 1; i <= Length2; i++) {
+			Distance[i][0] = i;
+		}
+		for (int j = 0; j <= Length1; j++) {
+			Distance[0][j] = j;
+		}
+		Distance[0][0] = 0;
+
+		for (int i = 1; i <= Length2; i++) {
+			for (int j = 1; j <= Length1; j++) {
+				if (str2[j - 1] == str1[i - 1])
+					Distance[i][j] = Distance[i - 1][j - 1];
+				else {
+					temp = Min(Distance[i][j - 1], Distance[i - 1][j]);
+					Distance[i][j] = Min(temp, Distance[i - 1][j - 1]) + 1;
+				}
+			}
+		}
+		cout << "最小操作次数为"<<Distance[Length2][Length1] << endl;
+	
+	return 0;
+}
