@@ -1,0 +1,57 @@
+#include <iostream>
+using namespace std;
+
+
+int min(int num1, int num2, int num3)
+{
+    int min = (num1 < num2) ? num1 : num2;
+    min = (min < num3) ? min : num3;
+
+    return min;
+}
+class EditDistance {
+public:
+    int Levenshtein(string A, string B) {
+        int SA = A.size();
+        int SB = B.size();
+        return Levenshtein2(A,B, 0, 0,SA - 1,SB - 1);
+    }
+private:
+    int Levenshtein2(string A,string B, int First_A,int First_B, int End_A,  int End_B) {
+        if (First_A > End_A) {
+            if (First_B > End_B) {
+                return 0;
+            }
+            else {
+                return End_B - First_B + 1;
+            }
+        }
+        if (First_B > End_B && First_A <= End_A) {
+            return End_A - First_A + 1;
+        }
+        if (A[First_A] == B[First_B]) {
+            return Levenshtein2(A, B, First_A + 1, End_A, First_B + 1, End_B);
+        }
+        else {
+            int Path1 = Levenshtein2(A,B, First_A + 1, First_B, End_A,  End_B);
+            int Path2 = Levenshtein2(A,B, First_A, First_B + 1, End_A,  End_B);
+            int Path3 = Levenshtein2(A,B, First_A + 1,First_B + 1, End_A,   End_B);
+            
+            return min(Path1, Path2, Path3) + 1;
+        }
+    }
+};
+
+
+int main() {
+    EditDistance solution;
+    string str1, str2;
+
+    cin >> str1;
+    cin >> str2;
+
+     //str1="kitten";
+     //str2="sitting";
+    
+    cout << "最小操作次数为"<<solution.Levenshtein(str1, str2) << endl;
+}
